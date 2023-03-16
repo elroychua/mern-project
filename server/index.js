@@ -8,7 +8,11 @@ import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import authRoutes from "./routes/auth.js"; //route folder to hold path and route for features
+import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
 import { register } from "./controllers/auth.js";
+import { verifyToken } from "./middleware/auth.js";
 
 /* CONFIGURATIONS */
 const __filename = fileURLToPath(
@@ -46,7 +50,12 @@ const upload = multer({ storage });
 //route - auth/register, uses upload.single middleware, upload to public/assets folder
 // then register logic, saves user to database - controller
 app.post("/auth/register", upload.single("picture"), register);
+app.post("/posts", verifyToken, upload.single("picture"), createPost); //when sending FE picture, grab pic property
 
+/* ROUTES */
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/posts", postRoutes);
 /* MONGOOSE SETUP */
 const PORT = process.env.PORT || 6001;
 mongoose
